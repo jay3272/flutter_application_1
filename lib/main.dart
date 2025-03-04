@@ -33,6 +33,17 @@ class MyAppState extends ChangeNotifier {
     current = WordPair.random();
     notifyListeners();
   }
+  // ↓ Add the code below.
+  var favorites = <WordPair>[];
+
+  void toggleFavorite() {
+    if (favorites.contains(current)) {
+      favorites.remove(current);
+    } else {
+      favorites.add(current);
+    }
+    notifyListeners();
+  }
 }
 
 class MyHomePage extends StatelessWidget {
@@ -40,6 +51,14 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
     var pair = appState.current;
+
+    // ↓ Add this.
+    IconData icon;
+    if (appState.favorites.contains(pair)) {
+      icon = Icons.favorite;
+    } else {
+      icon = Icons.favorite_border;
+    }
 
     return Scaffold(
       body: Center(
@@ -49,11 +68,27 @@ class MyHomePage extends StatelessWidget {
             BigCard(pair: pair),
             SizedBox(height: 10),
             // ↓ Add this.
-            ElevatedButton(
-              onPressed: () {
-                appState.getNext();
-              },
-              child: Text('Next'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+
+                // ↓ And this.
+                ElevatedButton.icon(
+                  onPressed: () {
+                    appState.toggleFavorite();
+                  },
+                  icon: Icon(icon),
+                  label: Text('Like'),
+                ),
+                SizedBox(width: 10),
+
+                ElevatedButton(
+                  onPressed: () {
+                    appState.getNext();
+                  },
+                  child: Text('Next'),
+                ),
+              ],
             ),
           ],
         ),
@@ -84,7 +119,7 @@ class BigCard extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         // ↓ Make the following change.
         child: Text(
-          pair.asLowerCase,
+          '${pair.first} ${pair.second}',
           style: style,
           semanticsLabel: "${pair.first} ${pair.second}",
         ),
